@@ -12,8 +12,8 @@ readme = "README.md"
 license = "MIT"
 
 [dependencies]
-tch = "0.16.0"
-serde = { version = "1.0.136", features = ["derive"] }
+tch = { version = "0.16.0", features = ["python-extension"], git = "https://github.com/asu-gkg/tch-rs.git" }
+serde = { version = "1.0", features = ["derive"] }
 half = { version = "2.4.1", features = ["serde"] }
 
 [dev-dependencies]
