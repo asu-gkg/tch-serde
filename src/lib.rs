@@ -102,8 +102,8 @@ pub mod serde_tensor {
     use super::*;
 
     pub fn serialize<S>(tensor: &Tensor, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
+        where
+            S: Serializer,
     {
         let device = tensor.device();
         let requires_grad = tensor.requires_grad();
@@ -151,8 +151,8 @@ pub mod serde_tensor {
     }
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Tensor, D::Error>
-    where
-        D: Deserializer<'de>,
+        where
+            D: Deserializer<'de>,
     {
         let TensorRepr {
             requires_grad,
@@ -162,7 +162,7 @@ pub mod serde_tensor {
             data,
         } = Deserialize::deserialize(deserializer)?;
 
-        let tensor = Tensor::of_data_size(&data, &shape, kind);
+        let tensor = Tensor::from_data_size(&data, &shape, kind);
         let tensor = tensor.set_requires_grad(requires_grad);
         let tensor = tensor.to_device(device);
 
@@ -175,19 +175,20 @@ pub mod serde_device {
     use super::*;
 
     pub fn serialize<S>(device: &Device, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
+        where
+            S: Serializer,
     {
         let text = match device {
             Device::Cpu => "cpu".into(),
             Device::Cuda(n) => format!("cuda:{}", n),
+            _ => { panic!("only support cpu and cuda") }
         };
         serializer.serialize_str(&text)
     }
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Device, D::Error>
-    where
-        D: Deserializer<'de>,
+        where
+            D: Deserializer<'de>,
     {
         let text = String::deserialize(deserializer)?;
         let device = match text.as_str() {
@@ -198,7 +199,7 @@ pub mod serde_device {
                     let index: usize = remaining.parse().ok()?;
                     Some(index)
                 })()
-                .ok_or_else(|| D::Error::custom(format!("invalid device name {}", text)))?;
+                    .ok_or_else(|| D::Error::custom(format!("invalid device name {}", text)))?;
 
                 Device::Cuda(index)
             }
@@ -213,8 +214,8 @@ pub mod serde_kind {
     use super::*;
 
     pub fn serialize<S>(kind: &Kind, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
+        where
+            S: Serializer,
     {
         use Kind::*;
         let text = match kind {
@@ -239,8 +240,8 @@ pub mod serde_kind {
     }
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Kind, D::Error>
-    where
-        D: Deserializer<'de>,
+        where
+            D: Deserializer<'de>,
     {
         use Kind::*;
         let text = String::deserialize(deserializer)?;
@@ -272,8 +273,8 @@ pub mod serde_reduction {
     use super::*;
 
     pub fn serialize<S>(reduction: &Reduction, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
+        where
+            S: Serializer,
     {
         let text: Cow<'_, str> = match reduction {
             Reduction::None => "none".into(),
@@ -285,8 +286,8 @@ pub mod serde_reduction {
     }
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Reduction, D::Error>
-    where
-        D: Deserializer<'de>,
+        where
+            D: Deserializer<'de>,
     {
         let text = String::deserialize(deserializer)?;
 
@@ -300,7 +301,7 @@ pub mod serde_reduction {
                     let value: i64 = remaining.parse().ok()?;
                     Some(value)
                 })()
-                .ok_or_else(|| D::Error::custom(format!("invalid reduction '{}'", other)))?;
+                    .ok_or_else(|| D::Error::custom(format!("invalid reduction '{}'", other)))?;
                 Reduction::Other(value)
             }
         };

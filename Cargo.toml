@@ -12,9 +12,9 @@ readme = "README.md"
 license = "MIT"
 
 [dependencies]
-tch = "0.7.0"
+tch = "0.16.0"
 serde = { version = "1.0.136", features = ["derive"] }
-half = { version = "1.8.2", features = ["serde"] }
+half = { version = "2.4.1", features = ["serde"] }
 
 [dev-dependencies]
 anyhow = "1.0.56"
